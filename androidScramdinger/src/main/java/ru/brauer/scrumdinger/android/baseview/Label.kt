@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.brauer.scrumdinger.android.MyApplicationTheme
@@ -23,17 +24,18 @@ fun Label(
     imageVector: ImageVector,
     text: String,
     trailingIcon: Boolean = false,
-    contentDescription: String? = null
+    contentDescription: String? = null,
+    style: TextStyle = MaterialTheme.typography.labelMedium
 ) {
     Row(modifier = modifier.padding(all = 3.dp), verticalAlignment = Alignment.CenterVertically) {
         if (trailingIcon) {
-            Text(text = text, style = MaterialTheme.typography.labelMedium)
+            Text(text = text, style = style)
             Spacer(modifier = Modifier.width(8.dp))
             Icon(imageVector = imageVector, contentDescription = contentDescription)
         } else {
             Icon(imageVector = imageVector, contentDescription = contentDescription)
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text = text, style = MaterialTheme.typography.labelMedium)
+            Text(text = text, style = style)
         }
     }
 }
