@@ -12,7 +12,7 @@ import scrumdingerShared
 struct ScrumView: View {
     @Binding var scrums: [DailyScrum]
     var body: some View {
-        List($scrums, id: \.title) { $scrum in
+        List($scrums) { $scrum in
             CardView(scrum: scrum)
                 .listRowBackground(scrum.theme.color)
         }

@@ -1,12 +1,18 @@
 package ru.brauer.scrumdinger.models
 
+import ru.brauer.scrumdinger.createId
+
 data class DailyScrum(
     val title: String,
     val attendees: List<Attendee>,
     val lengthInMinutes: Int,
     val theme: Theme
 ) {
-    companion object {}
+    companion object {
+        val empty: DailyScrum by lazy { DailyScrum("", emptyList(), 0, Theme.TAN) }
+    }
+
+    val id: String = createId()
 
     data class Attendee(
         val name: String

@@ -13,10 +13,10 @@ import ru.brauer.scrumdinger.models.DailyScrum
 import ru.brauer.scrumdinger.models.sampleDaily
 
 @Composable
-fun ScrumView(scrums: List<DailyScrum>) {
+fun ScrumView(scrums: List<DailyScrum>, onClick: (scrum: DailyScrum) -> Unit) {
     LazyColumn(Modifier.padding(12.dp)) {
         items(items = scrums) {
-            CardView(scrum = it)
+            CardView(scrum = it, onClick)
             Spacer(modifier = Modifier.height(6.dp))
         }
     }
@@ -26,6 +26,6 @@ fun ScrumView(scrums: List<DailyScrum>) {
 @Composable
 fun ScumViewPreview() {
     MyApplicationTheme {
-        ScrumView(DailyScrum.sampleDaily)
+        ScrumView(DailyScrum.sampleDaily) {}
     }
 }

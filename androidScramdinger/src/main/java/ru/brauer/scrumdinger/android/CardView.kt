@@ -13,8 +13,7 @@ import androidx.compose.material.icons.outlined.WatchLater
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CardDefaults.elevatedCardElevation
-import androidx.compose.material3.CardElevation
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,15 +27,20 @@ import ru.brauer.scrumdinger.models.DailyScrum
 import ru.brauer.scrumdinger.models.accentColor
 import ru.brauer.scrumdinger.models.sampleScrum
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CardView(scrum: DailyScrum) {
+fun CardView(
+    scrum: DailyScrum,
+    onClick: (scrum: DailyScrum) -> Unit
+) {
     Card(
         colors = CardDefaults.cardColors(
             containerColor = scrum.theme.color,
             contentColor = scrum.theme.accentColor().color
         ),
         shape = RoundedCornerShape(10.dp),
-        elevation = elevatedCardElevation(defaultElevation = 4.dp)
+        elevation = elevatedCardElevation(defaultElevation = 4.dp),
+        onClick = { onClick(scrum) }
     ) {
         Column(
             modifier = Modifier
@@ -71,6 +75,8 @@ fun CardView(scrum: DailyScrum) {
 @Composable
 fun CardVPreview() {
     MyApplicationTheme {
-        CardView(DailyScrum.sampleScrum)
+        CardView(DailyScrum.sampleScrum) {
+            println(it)
+        }
     }
 }
