@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.brauer.scrumdinger.android.baseview.Label
@@ -32,65 +33,72 @@ import java.util.Locale
 
 @Composable
 fun DetailsView(scrum: DailyScrum) {
-    Column(modifier = Modifier.padding(10.dp)) {
-        SectionHeader(text = "Meeting info")
-        Surface(shape = RoundedCornerShape(10.dp)) {
-            Column {
-                Label(
-                    imageVector = Icons.Outlined.Timer,
-                    text = "Start meeting",
-                    style = labelStyle
-                )
-                Divider()
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+    Surface(color = MaterialTheme.colorScheme.background) {
+        Column(modifier = Modifier.padding(10.dp)) {
+            Text(
+                text = scrum.title,
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.Bold
+            )
+            SectionHeader(text = "Meeting info")
+            Surface(shape = RoundedCornerShape(10.dp)) {
+                Column {
                     Label(
-                        imageVector = Icons.Outlined.AccessTime,
-                        text = "Length",
+                        imageVector = Icons.Outlined.Timer,
+                        text = "Start meeting",
                         style = labelStyle
                     )
-                    Text(
-                        text = "${scrum.lengthInMinutes} minutes",
-                        style = labelStyle
-                    )
-                }
-                Divider()
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Label(
-                        imageVector = Icons.Outlined.Palette,
-                        text = "Theme",
-                        style = labelStyle
-                    )
-                    Surface(color = scrum.theme.color, shape = RoundedCornerShape(4.dp)) {
+                    Divider()
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Label(
+                            imageVector = Icons.Outlined.AccessTime,
+                            text = "Length",
+                            style = labelStyle
+                        )
                         Text(
-                            modifier = Modifier.padding(4.dp),
-                            color = scrum.theme.accentColor().color,
-                            text = scrum.theme.name
-                                .lowercase(Locale.getDefault())
-                                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() })
+                            text = "${scrum.lengthInMinutes} minutes",
+                            style = labelStyle
+                        )
+                    }
+                    Divider()
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Label(
+                            imageVector = Icons.Outlined.Palette,
+                            text = "Theme",
+                            style = labelStyle
+                        )
+                        Surface(color = scrum.theme.color, shape = RoundedCornerShape(4.dp)) {
+                            Text(
+                                modifier = Modifier.padding(4.dp),
+                                color = scrum.theme.accentColor().color,
+                                text = scrum.theme.name
+                                    .lowercase(Locale.getDefault())
+                                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() })
+                        }
                     }
                 }
             }
-        }
 
-        SectionHeader(text = "Attendees")
-        Surface(shape = RoundedCornerShape(10.dp)) {
-            Column {
-                scrum.attendees.forEachIndexed { index, attendee ->
-                    Label(
-                        imageVector = Icons.Outlined.Person,
-                        text = attendee.name,
-                        style = labelStyle
-                    )
-                    if (index < scrum.attendees.lastIndex) {
-                        Divider()
+            SectionHeader(text = "Attendees")
+            Surface(shape = RoundedCornerShape(10.dp)) {
+                Column {
+                    scrum.attendees.forEachIndexed { index, attendee ->
+                        Label(
+                            imageVector = Icons.Outlined.Person,
+                            text = attendee.name,
+                            style = labelStyle
+                        )
+                        if (index < scrum.attendees.lastIndex) {
+                            Divider()
+                        }
                     }
                 }
             }
