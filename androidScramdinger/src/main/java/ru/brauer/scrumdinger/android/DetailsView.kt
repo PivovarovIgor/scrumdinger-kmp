@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.Palette
@@ -33,8 +35,11 @@ import java.util.Locale
 
 @Composable
 fun DetailsView(scrum: DailyScrum) {
+    val stateScroll = rememberScrollState()
     Surface(color = MaterialTheme.colorScheme.background) {
-        Column(modifier = Modifier.padding(10.dp)) {
+        Column(modifier = Modifier
+            .padding(10.dp)
+            .verticalScroll(stateScroll)) {
             Text(
                 text = scrum.title,
                 style = MaterialTheme.typography.headlineLarge,
