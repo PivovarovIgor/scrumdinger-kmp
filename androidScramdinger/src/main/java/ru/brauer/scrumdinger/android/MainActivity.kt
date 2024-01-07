@@ -54,6 +54,10 @@ class MainActivity : ComponentActivity() {
                                 animationSpec = tween(300, easing = EaseOutExpo),
                                 transformOrigin = TransformOrigin(0.1f, 0.5f),
                                 initialScale = 0.8f
+                            ) + slideIntoContainer(
+                                towards = AnimatedContentTransitionScope.SlideDirection.End,
+                                animationSpec = tween(300, easing = EaseOutExpo),
+                                initialOffset = { it / 2 }
                             )
                         },
                         exitTransition = {
@@ -61,6 +65,10 @@ class MainActivity : ComponentActivity() {
                                 animationSpec = tween(300, easing = EaseInExpo),
                                 transformOrigin = TransformOrigin(0.1f, 0.5f),
                                 targetScale = 0.8f
+                            ) + slideOutOfContainer(
+                                towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                                animationSpec = tween(300, easing = EaseInExpo),
+                                targetOffset = { it / 2 }
                             )
                         }
                     ) {
