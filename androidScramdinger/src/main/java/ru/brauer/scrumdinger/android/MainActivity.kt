@@ -80,7 +80,7 @@ class MainActivity : ComponentActivity() {
                                         SCRUM_DETAILS_PATTERN_ARG,
                                         it.id
                                     )
-                                    navController.navigate(route)
+                                    navController.navigate(route) { launchSingleTop = true }
                                 })
                         }
                         composable(
