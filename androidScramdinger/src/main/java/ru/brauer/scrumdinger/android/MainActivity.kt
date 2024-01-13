@@ -106,7 +106,7 @@ class MainActivity : ComponentActivity() {
                                     viewModel.scrum.value.firstOrNull { it.id == scrumId }
                                 }
                                 ?: DailyScrum.empty
-                            DetailsView(details)
+                            DetailsView(details, navController)
                         }
                     }
                 }
