@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIos
 import androidx.compose.material.icons.outlined.AccessTime
+import androidx.compose.material.icons.outlined.ArrowForwardIos
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Timer
@@ -114,10 +115,20 @@ fun DetailsViewScrollContent(scrum: DailyScrum, innerPadding: PaddingValues) {
     ) {
         Section(
             innerPadding = innerPadding, headerTitle = "Meeting info", itemsContents = listOf({
-                SectionLabel(
-                    imageVector = Icons.Outlined.Timer,
-                    text = "Start meeting",
-                )
+                SectionRow {
+                    Label(
+                        imageVector = Icons.Outlined.Timer,
+                        text = "Start meeting",
+                        style = labelStyle,
+                        tint = InnerColors.Blue,
+                        textColor = InnerColors.Blue
+                    )
+                    Icon(
+                        imageVector = Icons.Outlined.ArrowForwardIos,
+                        contentDescription = null,
+                        tint = Color.LightGray
+                    )
+                }
             }, {
                 SectionRow {
                     Label(

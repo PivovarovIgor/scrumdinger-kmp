@@ -28,17 +28,18 @@ fun Label(
     trailingIcon: Boolean = false,
     contentDescription: String? = null,
     style: TextStyle = MaterialTheme.typography.labelMedium,
-    tint: Color = LocalContentColor.current
+    tint: Color = LocalContentColor.current,
+    textColor: Color = Color.Unspecified,
 ) {
     Row(modifier = modifier.padding(all = 3.dp), verticalAlignment = Alignment.CenterVertically) {
         if (trailingIcon) {
-            Text(text = text, style = style)
+            Text(text = text, style = style, color = textColor)
             Spacer(modifier = Modifier.width(8.dp))
             Icon(imageVector = imageVector, contentDescription = contentDescription, tint = tint)
         } else {
             Icon(imageVector = imageVector, contentDescription = contentDescription, tint = tint)
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text = text, style = style)
+            Text(text = text, style = style, color = textColor)
         }
     }
 }
