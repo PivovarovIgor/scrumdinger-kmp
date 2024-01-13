@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -116,6 +117,7 @@ fun DetailsViewScrollContent(scrum: DailyScrum, innerPadding: PaddingValues) {
     val stateScroll = rememberScrollState()
     Column(
         modifier = Modifier
+            .padding(horizontal = 10.dp)
             .verticalScroll(stateScroll),
     ) {
         SectionHeader(
@@ -123,15 +125,18 @@ fun DetailsViewScrollContent(scrum: DailyScrum, innerPadding: PaddingValues) {
             text = "Meeting info"
         )
         Surface(shape = RoundedCornerShape(10.dp)) {
-            Column {
+            Column(modifier = Modifier.padding(vertical = 4.dp)) {
                 Label(
+                    modifier = Modifier.padding(horizontal = 6.dp),
                     imageVector = Icons.Outlined.Timer,
                     text = "Start meeting",
                     style = labelStyle
                 )
-                Divider()
+                ItemDivider()
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 6.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -145,9 +150,11 @@ fun DetailsViewScrollContent(scrum: DailyScrum, innerPadding: PaddingValues) {
                         style = labelStyle
                     )
                 }
-                Divider()
+                ItemDivider()
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 6.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -170,19 +177,45 @@ fun DetailsViewScrollContent(scrum: DailyScrum, innerPadding: PaddingValues) {
 
         SectionHeader(text = "Attendees")
         Surface(shape = RoundedCornerShape(10.dp)) {
-            Column {
+            Column(modifier = Modifier.padding(vertical = 4.dp)) {
                 scrum.attendees.forEachIndexed { index, attendee ->
                     Label(
+                        modifier = Modifier.padding(horizontal = 6.dp),
                         imageVector = Icons.Outlined.Person,
                         text = attendee.name,
                         style = labelStyle
                     )
                     if (index < scrum.attendees.lastIndex) {
-                        Divider()
+                        ItemDivider()
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun Section(
+    headerTitle: String,
+    contents: List<@Composable () -> Unit>,
+    innerPadding: PaddingValues? = null
+) {
+    SectionHeader(
+        modifier = innerPadding?.let { Modifier.padding(it) } ?: Modifier,
+        text = headerTitle
+    )
+    Surface(shape = RoundedCornerShape(10.dp)) {
+        Column(modifier = Modifier.padding(vertical = 4.dp)) {
+            contents.forEach { it.invoke() }
+        }
+    }
+}
+
+@Composable
+private fun ItemDivider() {
+    Row {
+        Spacer(modifier = Modifier.width(42.dp))
+        Divider()
     }
 }
 
