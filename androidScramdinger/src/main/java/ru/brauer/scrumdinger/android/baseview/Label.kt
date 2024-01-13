@@ -7,11 +7,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,15 +27,16 @@ fun Label(
     text: String,
     trailingIcon: Boolean = false,
     contentDescription: String? = null,
-    style: TextStyle = MaterialTheme.typography.labelMedium
+    style: TextStyle = MaterialTheme.typography.labelMedium,
+    tint: Color = LocalContentColor.current
 ) {
     Row(modifier = modifier.padding(all = 3.dp), verticalAlignment = Alignment.CenterVertically) {
         if (trailingIcon) {
             Text(text = text, style = style)
             Spacer(modifier = Modifier.width(8.dp))
-            Icon(imageVector = imageVector, contentDescription = contentDescription)
+            Icon(imageVector = imageVector, contentDescription = contentDescription, tint = tint)
         } else {
-            Icon(imageVector = imageVector, contentDescription = contentDescription)
+            Icon(imageVector = imageVector, contentDescription = contentDescription, tint = tint)
             Spacer(modifier = Modifier.width(8.dp))
             Text(text = text, style = style)
         }

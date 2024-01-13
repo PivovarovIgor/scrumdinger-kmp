@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -59,55 +61,45 @@ fun DetailsView(scrum: DailyScrum, navController: NavHostController) {
 }
 
 private val labelStyle
-    @Composable
-    get() = MaterialTheme.typography.headlineSmall
+    @Composable get() = MaterialTheme.typography.headlineSmall
+
+private object InnerColors {
+    val Blue: Color = Color(0xFF0676FF)
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AppBar(scrum: DailyScrum, navController: NavHostController) {
     val scrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            var isEnabled by remember { mutableStateOf(true) }
-            LargeTopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                ),
-                title = {
-                    Text(
-                        text = scrum.title,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            isEnabled = false
-                            navController.popBackStack()
-                        },
-                        enabled = isEnabled
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBackIos,
-                            contentDescription = null
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Add,
-                            contentDescription = null
-                        )
-                    }
-                },
-                scrollBehavior = scrollBehavior
+    Scaffold(modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection), topBar = {
+        var isEnabled by remember { mutableStateOf(true) }
+        LargeTopAppBar(colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.background
+        ), title = {
+            Text(
+                text = scrum.title, maxLines = 1, overflow = TextOverflow.Ellipsis
             )
-        }
-    ) { innerPadding ->
+        }, navigationIcon = {
+            IconButton(
+                onClick = {
+                    isEnabled = false
+                    navController.popBackStack()
+                }, enabled = isEnabled
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBackIos, contentDescription = null
+                )
+            }
+        }, actions = {
+            IconButton(onClick = { /*TODO*/ }) {
+                Icon(
+                    imageVector = Icons.Filled.Add, contentDescription = null
+                )
+            }
+        }, scrollBehavior = scrollBehavior
+        )
+    }) { innerPadding ->
         DetailsViewScrollContent(scrum, innerPadding)
     }
 }
@@ -120,93 +112,103 @@ fun DetailsViewScrollContent(scrum: DailyScrum, innerPadding: PaddingValues) {
             .padding(horizontal = 10.dp)
             .verticalScroll(stateScroll),
     ) {
-        SectionHeader(
-            modifier = Modifier.padding(innerPadding),
-            text = "Meeting info"
-        )
-        Surface(shape = RoundedCornerShape(10.dp)) {
-            Column(modifier = Modifier.padding(vertical = 4.dp)) {
-                Label(
-                    modifier = Modifier.padding(horizontal = 6.dp),
+        Section(
+            innerPadding = innerPadding, headerTitle = "Meeting info", itemsContents = listOf({
+                SectionLabel(
                     imageVector = Icons.Outlined.Timer,
                     text = "Start meeting",
-                    style = labelStyle
                 )
-                ItemDivider()
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 6.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+            }, {
+                SectionRow {
                     Label(
                         imageVector = Icons.Outlined.AccessTime,
                         text = "Length",
-                        style = labelStyle
+                        style = labelStyle,
+                        tint = InnerColors.Blue
                     )
                     Text(
-                        text = "${scrum.lengthInMinutes} minutes",
-                        style = labelStyle
+                        text = "${scrum.lengthInMinutes} minutes", style = labelStyle
                     )
                 }
-                ItemDivider()
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 6.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+            }, {
+                SectionRow {
                     Label(
                         imageVector = Icons.Outlined.Palette,
                         text = "Theme",
-                        style = labelStyle
+                        style = labelStyle,
+                        tint = InnerColors.Blue
                     )
                     Surface(color = scrum.theme.color, shape = RoundedCornerShape(4.dp)) {
-                        Text(
-                            modifier = Modifier.padding(4.dp),
+                        Text(modifier = Modifier.padding(4.dp),
                             color = scrum.theme.accentColor().color,
-                            text = scrum.theme.name
-                                .lowercase(Locale.getDefault())
+                            text = scrum.theme.name.lowercase(Locale.getDefault())
                                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() })
                     }
                 }
-            }
-        }
+            })
+        )
 
-        SectionHeader(text = "Attendees")
-        Surface(shape = RoundedCornerShape(10.dp)) {
-            Column(modifier = Modifier.padding(vertical = 4.dp)) {
-                scrum.attendees.forEachIndexed { index, attendee ->
-                    Label(
-                        modifier = Modifier.padding(horizontal = 6.dp),
+        Section(
+            headerTitle = "Attendees",
+            itemsContents = scrum.attendees.map { attendee ->
+                {
+                    SectionLabel(
                         imageVector = Icons.Outlined.Person,
-                        text = attendee.name,
-                        style = labelStyle
+                        text = attendee.name
                     )
-                    if (index < scrum.attendees.lastIndex) {
-                        ItemDivider()
-                    }
                 }
-            }
-        }
+            })
     }
+}
+
+@Composable
+private fun SectionLabel(
+    imageVector: ImageVector,
+    text: String,
+) {
+    Label(
+        modifier = Modifier.padding(horizontal = 6.dp),
+        imageVector = imageVector,
+        text = text,
+        style = labelStyle,
+        tint = InnerColors.Blue
+    )
+}
+
+@Composable
+private fun SectionRow(content: @Composable RowScope.() -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 6.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        content = content
+    )
 }
 
 @Composable
 private fun Section(
     headerTitle: String,
-    contents: List<@Composable () -> Unit>,
+    itemsContents: List<@Composable () -> Unit>,
     innerPadding: PaddingValues? = null
 ) {
-    SectionHeader(
-        modifier = innerPadding?.let { Modifier.padding(it) } ?: Modifier,
-        text = headerTitle
-    )
-    Surface(shape = RoundedCornerShape(10.dp)) {
-        Column(modifier = Modifier.padding(vertical = 4.dp)) {
-            contents.forEach { it.invoke() }
+    if (itemsContents.isNotEmpty()) {
+        SectionHeader(modifier = innerPadding?.let { Modifier.padding(it) } ?: Modifier,
+            text = headerTitle)
+        Surface(shape = RoundedCornerShape(10.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+            ) {
+                itemsContents.forEachIndexed { index, content ->
+                    content.invoke()
+                    if (itemsContents.lastIndex > index) {
+                        ItemDivider()
+                    }
+                }
+            }
         }
     }
 }
