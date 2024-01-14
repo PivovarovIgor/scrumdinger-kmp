@@ -1,85 +1,82 @@
 package ru.brauer.scrumdinger.android
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIos
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.ArrowForwardIos
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Timer
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.launch
 import ru.brauer.scrumdinger.android.baseview.Label
 import ru.brauer.scrumdinger.android.extensions.color
 import ru.brauer.scrumdinger.models.DailyScrum
 import ru.brauer.scrumdinger.models.accentColor
 import ru.brauer.scrumdinger.models.sampleScrum
+import sections.InnerColors
+import sections.Section
+import sections.SectionLabel
+import sections.SectionRow
+import sections.labelStyle
 import java.util.Locale
 
 @Composable
-fun DetailsView(scrum: DailyScrum, navController: NavHostController) {
+fun DetailsView(scrumId: String, navController: NavHostController, viewModel: ScrumViewModel) {
     Surface(color = MaterialTheme.colorScheme.background) {
-        AppBar(scrum, navController)
+        AppBar(scrumId, navController, viewModel)
     }
-}
-
-private val labelStyle
-    @Composable get() = MaterialTheme.typography.headlineSmall
-
-private object InnerColors {
-    val Blue: Color = Color(0xFF0676FF)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AppBar(scrum: DailyScrum, navController: NavHostController) {
+private fun AppBar(scrumId: String, navController: NavHostController, viewModel: ScrumViewModel) {
     val scrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    var isShowEditSheet by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
+    val scrum = viewModel.getScrumByIdFlow(scrumId)
+        .collectAsStateWithLifecycle(initialValue = DailyScrum.empty)
     Scaffold(modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection), topBar = {
         var isEnabled by remember { mutableStateOf(true) }
         LargeTopAppBar(colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.background
         ), title = {
             Text(
-                text = scrum.title, maxLines = 1, overflow = TextOverflow.Ellipsis
+                text = scrum.value.title, maxLines = 1, overflow = TextOverflow.Ellipsis
             )
         }, navigationIcon = {
             IconButton(
@@ -89,19 +86,38 @@ private fun AppBar(scrum: DailyScrum, navController: NavHostController) {
                 }, enabled = isEnabled
             ) {
                 Icon(
-                    imageVector = Icons.Filled.ArrowBackIos, contentDescription = null
+                    imageVector = Icons.Filled.ArrowBackIos,
+                    contentDescription = null,
+                    tint = InnerColors.Blue
                 )
             }
         }, actions = {
-            IconButton(onClick = { /*TODO*/ }) {
-                Icon(
-                    imageVector = Icons.Filled.Add, contentDescription = null
-                )
+            IconButton(onClick = { isShowEditSheet = true }) {
+                Text(text = "Edit", color = InnerColors.Blue)
             }
         }, scrollBehavior = scrollBehavior
         )
     }) { innerPadding ->
-        DetailsViewScrollContent(scrum, innerPadding)
+        DetailsViewScrollContent(scrum.value, innerPadding)
+        if (isShowEditSheet) {
+            ModalBottomSheet(
+                onDismissRequest = { isShowEditSheet = false },
+                sheetState = sheetState
+            ) {
+                EditSheet(
+                    scrum = scrum.value,
+                    onChange = {
+                        viewModel.update(it)
+                        scope.launch { sheetState.hide() }
+                            .invokeOnCompletion { isShowEditSheet = false }
+                    },
+                    onDismiss = {
+                        scope.launch { sheetState.hide() }
+                            .invokeOnCompletion { isShowEditSheet = false }
+                    }
+                )
+            }
+        }
     }
 }
 
@@ -172,83 +188,13 @@ fun DetailsViewScrollContent(scrum: DailyScrum, innerPadding: PaddingValues) {
     }
 }
 
-@Composable
-private fun SectionLabel(
-    imageVector: ImageVector,
-    text: String,
-) {
-    Label(
-        modifier = Modifier.padding(horizontal = 6.dp),
-        imageVector = imageVector,
-        text = text,
-        style = labelStyle,
-        tint = InnerColors.Blue
-    )
-}
-
-@Composable
-private fun SectionRow(content: @Composable RowScope.() -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 6.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-        content = content
-    )
-}
-
-@Composable
-private fun Section(
-    headerTitle: String,
-    itemsContents: List<@Composable () -> Unit>,
-    innerPadding: PaddingValues? = null
-) {
-    if (itemsContents.isNotEmpty()) {
-        SectionHeader(modifier = innerPadding?.let { Modifier.padding(it) } ?: Modifier,
-            text = headerTitle)
-        Surface(shape = RoundedCornerShape(10.dp)) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-            ) {
-                itemsContents.forEachIndexed { index, content ->
-                    content.invoke()
-                    if (itemsContents.lastIndex > index) {
-                        ItemDivider()
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ItemDivider() {
-    Row {
-        Spacer(modifier = Modifier.width(42.dp))
-        Divider()
-    }
-}
-
-@Composable
-private fun SectionHeader(modifier: Modifier = Modifier, text: String) {
-    Spacer(modifier = modifier.height(30.dp))
-    Text(
-        modifier = Modifier.padding(start = 16.dp),
-        text = text,
-        style = MaterialTheme.typography.titleLarge,
-        color = Color.Gray
-    )
-    Spacer(modifier = Modifier.height(16.dp))
-}
 
 @Preview
 @Composable
 fun DetailsViewPreview() {
     val navController = rememberNavController()
+    val viewModel: ScrumViewModel = ScrumViewModel()
     MyApplicationTheme {
-        DetailsView(DailyScrum.sampleScrum, navController)
+        DetailsView(DailyScrum.sampleScrum.id, navController, viewModel)
     }
 }

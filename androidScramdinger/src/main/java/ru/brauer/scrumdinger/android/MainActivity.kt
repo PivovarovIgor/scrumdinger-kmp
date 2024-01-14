@@ -21,13 +21,18 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import ru.brauer.scrumdinger.models.DailyScrum
 import ru.brauer.scrumdinger.models.sampleDaily
 
@@ -44,7 +49,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val scrum = viewModel.scrum.collectAsStateWithLifecycle()
+                    val scrum = viewModel.scrums.collectAsStateWithLifecycle()
                     val navController = rememberNavController()
                     NavHost(
                         navController = navController,
@@ -101,12 +106,8 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                         ) { backStackEntry ->
-                            val details = backStackEntry.arguments?.getString(SCRUM_DETAILS_KEY)
-                                ?.let { scrumId ->
-                                    viewModel.scrum.value.firstOrNull { it.id == scrumId }
-                                }
-                                ?: DailyScrum.empty
-                            DetailsView(details, navController)
+                            val scrumId = backStackEntry.arguments?.getString(SCRUM_DETAILS_KEY) ?: ""
+                            DetailsView(scrumId, navController, viewModel)
                         }
                     }
                 }
@@ -128,7 +129,25 @@ fun DefaultPreview() {
 }
 
 class ScrumViewModel : ViewModel() {
+
     private val _scrums: MutableStateFlow<List<DailyScrum>> =
         MutableStateFlow(DailyScrum.sampleDaily)
-    val scrum = _scrums.asStateFlow()
+    val scrums = _scrums.asStateFlow()
+
+    fun getScrumByIdFlow(id: String) =
+        scrums.map { dailyScrums -> dailyScrums.first { it.id == id } }
+
+    fun update(scrum: DailyScrum) {
+        viewModelScope.launch(Dispatchers.Default) {
+            _scrums.update { scrums ->
+                scrums.map {
+                    if (it.id == scrum.id) {
+                        scrum
+                    } else {
+                        it
+                    }
+                }
+            }
+        }
+    }
 }
