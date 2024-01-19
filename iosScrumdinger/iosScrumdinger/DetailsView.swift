@@ -11,6 +11,7 @@ import scrumdingerShared
 
 struct DetailsView: View {
     @Binding var scrum: DailyScrum
+    @State var isPresentingEditView: Bool = false
     var body: some View {
         List {
             Section(header: Text("Meeting info")) {
@@ -37,6 +38,14 @@ struct DetailsView: View {
             }
         }
         .navigationTitle(scrum.title)
+        .toolbar {
+            Button("Edit") {
+                isPresentingEditView = true
+            }
+        }
+        .sheet(isPresented: $isPresentingEditView) {
+            EditScrumSheet(isPresentingEditView: $isPresentingEditView, scrum: $scrum)
+        }
     }
 }
 
