@@ -1,7 +1,8 @@
 package ru.brauer.scrumdinger.android
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -12,19 +13,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.outlined.ArrowForwardIos
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,7 +27,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.brauer.scrumdinger.android.extensions.color
@@ -42,43 +36,25 @@ import sections.Section
 import sections.SectionRow
 import sections.labelStyle
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditSheet(scrum: DailyScrum, onChange: (scrum: DailyScrum) -> Unit, onDismiss: () -> Unit) {
     var editableScrum by remember { mutableStateOf(scrum) }
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            CenterAlignedTopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                ),
-                title = { },
-                navigationIcon = {
-                    TextButton(onClick = { onDismiss.invoke() }) {
-                        Text("Dismiss")
-                    }
-                },
-                actions = {
-                    TextButton(onClick = { onChange.invoke(editableScrum) }) {
-                        Text(text = "Done")
-                    }
-                },
-                scrollBehavior = scrollBehavior
-            )
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        TextButton(onClick = { onDismiss.invoke() }) {
+            Text(text = "Dismiss")
         }
-    ) { innerPadding ->
-        DetailEditView(editableScrum, innerPadding) {
-            editableScrum = it
+        TextButton(onClick = { onChange.invoke(editableScrum)} ) {
+            Text(text = "Done")
         }
+    }
+    DetailEditView(editableScrum) {
+        editableScrum = it
     }
 }
 
 @Composable
 fun DetailEditView(
     scrum: DailyScrum,
-    innerPadding: PaddingValues,
     onChange: (scrum: DailyScrum) -> Unit
 ) {
     val stateScroll = rememberScrollState()
@@ -89,7 +65,6 @@ fun DetailEditView(
     ) {
         Section(
             headerTitle = "Meeting info",
-            innerPadding = innerPadding,
             itemsContents = listOf({
                 SectionRow {
                     OutlinedTextField(
@@ -137,7 +112,7 @@ fun DetailEditView(
         Section(
             headerTitle = "Attendees",
             itemsContents = buildList {
-                addAll(scrum.attendees.mapIndexed { index, attendee ->
+                addAll(scrum.attendees.map { attendee ->
                     {
                         SectionRow {
                             Text(
