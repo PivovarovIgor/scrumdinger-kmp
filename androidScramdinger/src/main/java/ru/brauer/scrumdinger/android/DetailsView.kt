@@ -106,6 +106,7 @@ private fun AppBar(scrumId: String, navController: NavHostController, viewModel:
             ) {
                 EditSheet(
                     scrum = scrum.value,
+                    sheetState = sheetState,
                     onChange = {
                         viewModel.update(it)
                         scope.launch { sheetState.hide() }

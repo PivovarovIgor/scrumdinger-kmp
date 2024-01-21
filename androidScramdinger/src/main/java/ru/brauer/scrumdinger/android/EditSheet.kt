@@ -9,24 +9,31 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.outlined.ArrowForwardIos
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.brauer.scrumdinger.android.extensions.color
@@ -36,8 +43,14 @@ import sections.Section
 import sections.SectionRow
 import sections.labelStyle
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditSheet(scrum: DailyScrum, onChange: (scrum: DailyScrum) -> Unit, onDismiss: () -> Unit) {
+fun EditSheet(
+    scrum: DailyScrum,
+    onChange: (scrum: DailyScrum) -> Unit,
+    onDismiss: () -> Unit,
+    sheetState: SheetState
+) {
     var editableScrum by remember { mutableStateOf(scrum) }
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         TextButton(onClick = { onDismiss.invoke() }) {
@@ -47,17 +60,20 @@ fun EditSheet(scrum: DailyScrum, onChange: (scrum: DailyScrum) -> Unit, onDismis
             Text(text = "Done")
         }
     }
-    DetailEditView(editableScrum) {
+    DetailEditView(editableScrum, sheetState = sheetState) {
         editableScrum = it
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailEditView(
     scrum: DailyScrum,
+    sheetState: SheetState,
     onChange: (scrum: DailyScrum) -> Unit
 ) {
     val stateScroll = rememberScrollState()
+    var scrollToBelow by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .padding(horizontal = 10.dp)
@@ -134,6 +150,7 @@ fun DetailEditView(
                     )
                     inputName = ""
                     enabledAddButton = false
+                    scrollToBelow = true
                 }
                 add {
                     SectionRow {
@@ -145,7 +162,8 @@ fun DetailEditView(
                             },
                             keyboardActions = KeyboardActions(onDone = {
                                 addAction.invoke()
-                            })
+                            }),
+                            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done)
                         )
                         IconButton(onClick = addAction, enabled = enabledAddButton) {
                             Icon(
@@ -156,15 +174,30 @@ fun DetailEditView(
                     }
                 }
             }
-
         )
+        LaunchedEffect(key1 = scrollToBelow) {
+            if (scrollToBelow) {
+                if (sheetState.currentValue == SheetValue.PartiallyExpanded) {
+                    sheetState.expand()
+                }
+                stateScroll.animateScrollTo(stateScroll.maxValue)
+                scrollToBelow = false
+            }
+        }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun EditSheetPreview() {
+    val sheetState = rememberModalBottomSheetState()
     MyApplicationTheme {
-        EditSheet(scrum = DailyScrum.sampleScrum, onChange = {}, onDismiss = {})
+        EditSheet(
+            scrum = DailyScrum.sampleScrum,
+            onChange = {},
+            onDismiss = {},
+            sheetState = sheetState
+        )
     }
 }
