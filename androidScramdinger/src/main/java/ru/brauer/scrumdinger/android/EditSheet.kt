@@ -142,16 +142,18 @@ fun DetailEditView(
             }
         }
         val addAction = {
-            onChange.invoke(
-                scrum.copy(
-                    attendees = scrum.attendees + DailyScrum.Attendee(
-                        inputName
+            if (inputName.isNotBlank()) {
+                onChange.invoke(
+                    scrum.copy(
+                        attendees = scrum.attendees + DailyScrum.Attendee(
+                            inputName
+                        )
                     )
                 )
-            )
-            inputName = ""
-            enabledAddButton = false
-            scrollToBelow = true
+                inputName = ""
+                enabledAddButton = false
+                scrollToBelow = true
+            }
         }
         item {
             SectionRow {
