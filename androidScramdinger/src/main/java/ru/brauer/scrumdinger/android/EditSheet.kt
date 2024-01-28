@@ -1,18 +1,22 @@
 package ru.brauer.scrumdinger.android
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.outlined.ArrowForwardIos
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -21,15 +25,18 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -44,6 +51,7 @@ import ru.brauer.scrumdinger.models.sampleScrum
 import sections.SectionHeader
 import sections.SectionRow
 import sections.labelStyle
+import androidx.compose.runtime.remember as remember
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -133,12 +141,40 @@ fun DetailEditView(
         item {
             SectionHeader(text = "Attendees")
         }
-        itemsIndexed(scrum.attendees) { index, attendee ->
-            SectionRow {
-                Text(
-                    text = attendee.name,
-                    style = labelStyle
-                )
+        items(scrum.attendees) { attendee ->
+            val dismissState = rememberSwipeToDismissBoxState()
+            if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
+                LaunchedEffect(dismissState.currentValue) {
+                    dismissState.snapTo(SwipeToDismissBoxValue.Settled)
+                    onChange.invoke(
+                        scrum.copy(
+                            attendees = scrum.attendees.filter { it != attendee }
+                        )
+                    )
+                }
+            }
+            SwipeToDismissBox(
+                state = dismissState,
+                backgroundContent = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Red),
+                        contentAlignment = Alignment.CenterEnd
+                    ) {
+                        Icon(imageVector = Icons.Outlined.Delete, contentDescription = null)
+                    }
+                },
+                enableDismissFromEndToStart = true,
+                enableDismissFromStartToEnd = false
+            ) {
+
+                SectionRow {
+                    Text(
+                        text = attendee.name,
+                        style = labelStyle
+                    )
+                }
             }
         }
         val addAction = {
