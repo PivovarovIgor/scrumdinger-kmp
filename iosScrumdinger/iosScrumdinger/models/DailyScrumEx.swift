@@ -9,12 +9,12 @@
 import scrumdingerShared
 
 extension DailyScrum : Identifiable {
-    func copy(pTitle: String? = nil, attendees: [Attendee]? = nil, pLengthInMinutes: Int32? = nil, theme: Theme? = nil, id: String? = nil) -> DailyScrum {
+    func copy(pTitle: String? = nil, attendees: [Attendee]? = nil, pLengthInMinutes: Int32? = nil, pTheme: Theme? = nil, id: String? = nil) -> DailyScrum {
         return self.doCopy(
             title: pTitle ?? self.title,
             attendees: attendees ?? self.attendees,
             lengthInMinutes: pLengthInMinutes ?? self.lengthInMinutes,
-            theme: theme ?? self.theme,
+            theme: pTheme ?? self.theme,
             id: id ?? self.id
         )
     }

@@ -26,7 +26,10 @@ extension ColorParams {
     }
 }
 
-extension Theme {
+extension Theme : Identifiable {
+    public var id: String {
+        self.name
+    }
     var color: Color {
         return self.colorParams.color
     }

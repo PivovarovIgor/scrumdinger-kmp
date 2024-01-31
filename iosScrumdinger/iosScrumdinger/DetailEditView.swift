@@ -12,6 +12,7 @@ import scrumdingerShared
 struct DetailEditView: View {
     @Binding var scrum: DailyScrum
     @State var newAttendeeName: String = ""
+    
     var body: some View {
         Form {
             Section(header: Text("Meeting info")) {
@@ -31,6 +32,14 @@ struct DetailEditView: View {
                         self.scrum = self.scrum.copy(pLengthInMinutes: Int32($0))
                     }
                 )
+                let themeSelection = Binding<Theme>(
+                    get: {
+                        self.scrum.theme
+                    },
+                    set: {
+                        self.scrum = self.scrum.copy(pTheme: $0)
+                    }
+                )
                 TextField("Title", text: titleBinding)
                 HStack{
                     Slider(value: lengthInMinutes, in: 5...30, step: 1) {
@@ -39,6 +48,7 @@ struct DetailEditView: View {
                     Spacer()
                     Text("\(scrum.lengthInMinutes) minutes")
                 }
+                ThemePicker(selection: themeSelection)
                 
             }
             Section(header: Text("Attendees")) {

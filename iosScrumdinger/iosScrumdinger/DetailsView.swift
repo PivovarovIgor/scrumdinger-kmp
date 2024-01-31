@@ -24,7 +24,7 @@ struct DetailsView: View {
                 HStack {
                     Label("Theme", systemImage: "paintpalette")
                     Spacer()
-                    Text(scrum.theme.name.capitalized)
+                    Text(scrum.theme.viewName)
                         .padding(4)
                         .background(scrum.theme.color)
                         .cornerRadius(4)

@@ -115,6 +115,10 @@ enum class Theme(val colorParams: ColorParams) {
     )
 }
 
+val Theme.viewName: String get() = name
+    .lowercase()
+    .replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+
 class ColorParams(
     val red: Float,
     val green: Float,

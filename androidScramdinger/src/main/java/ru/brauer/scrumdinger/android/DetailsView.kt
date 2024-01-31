@@ -44,6 +44,7 @@ import kotlinx.coroutines.launch
 import ru.brauer.scrumdinger.android.baseview.Label
 import ru.brauer.scrumdinger.android.extensions.color
 import ru.brauer.scrumdinger.models.DailyScrum
+import ru.brauer.scrumdinger.models.viewName
 import ru.brauer.scrumdinger.models.accentColor
 import ru.brauer.scrumdinger.models.sampleScrum
 import sections.InnerColors
@@ -51,7 +52,6 @@ import sections.Section
 import sections.SectionLabel
 import sections.SectionRow
 import sections.labelStyle
-import java.util.Locale
 
 @Composable
 fun DetailsView(scrumId: String, navController: NavHostController, viewModel: ScrumViewModel) {
@@ -169,8 +169,8 @@ fun DetailsViewScrollContent(scrum: DailyScrum, innerPadding: PaddingValues) {
                     Surface(color = scrum.theme.color, shape = RoundedCornerShape(4.dp)) {
                         Text(modifier = Modifier.padding(4.dp),
                             color = scrum.theme.accentColor().color,
-                            text = scrum.theme.name.lowercase(Locale.getDefault())
-                                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() })
+                            text = scrum.theme.viewName
+                        )
                     }
                 }
             })

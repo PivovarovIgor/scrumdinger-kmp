@@ -24,13 +24,15 @@ struct EditScrumSheet: View {
                         }
                     }
                     ToolbarItem(placement: .cancellationAction) {
-                        Button("Dissmiss") {
+                        Button("Dismiss") {
                             isPresentingEditView = false
                         }
                     }
                 }
                 .onAppear {
-                    editingScrum = scrum
+                    if editingScrum == DailyScrum.companion.empty {
+                        editingScrum = scrum
+                    }
                 }
         }
     }
